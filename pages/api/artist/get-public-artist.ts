@@ -1,7 +1,7 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { connectMongo } from "@/db/mongodb";
 import { ObjectId } from "mongodb";
-import { Artist, ArtistEvent } from "@/types/artist.type";
+import { ArtistEvent } from "@/types/artist.type";
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     if (req.method === "GET") {
@@ -22,7 +22,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
             let objectId;
             try {
                 objectId = new ObjectId(id);
-            } catch (error) {
+            } catch {
                 return res.status(400).json({
                     ok: false,
                     message: "Invalid artist ID format"
