@@ -67,6 +67,17 @@ const getCurrentArtist = async (id: string) => {
     }
 }
 
+const getPublicArtist = async (id: string) => {
+    try {
+        const response = await fetch(`/api/artist/get-public-artist?id=${id}`);
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error("Error fetching public artist:", error);
+        throw error;
+    }
+}
+
 const deleteArtist = async (id: string) => {
     const response = await fetch(`/api/artist/delete-artist?id=${id}`, {
         method: "DELETE",
@@ -163,4 +174,4 @@ const getAllEvents = async () => {
     }
 }
 
-export { getArtists, registerArtist, updateArtist, getCurrentArtist, deleteArtist, getAllArtists, profileClick, addAd, getAd, getActiveAdsArtists, checkExpiredAds, getAllEvents };
+export { getArtists, registerArtist, updateArtist, getCurrentArtist, getPublicArtist, deleteArtist, getAllArtists, profileClick, addAd, getAd, getActiveAdsArtists, checkExpiredAds, getAllEvents };

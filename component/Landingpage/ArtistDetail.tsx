@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
 import { Artist, ArtistMember } from '@/types/artist.type'
-import { getCurrentArtist, profileClick, getActiveAdsArtists } from '@/service/artist.service'
+import { getPublicArtist, profileClick, getActiveAdsArtists } from '@/service/artist.service'
 import { EnvelopeIcon, PhoneIcon, MapPinIcon, UsersIcon, MusicalNoteIcon, WrenchScrewdriverIcon, CalendarIcon } from '@heroicons/react/24/outline'
 import { StarIcon } from '@heroicons/react/20/solid'
 import { sendMessage } from '@/service/message.service'
@@ -29,7 +29,7 @@ export default function ArtistDetail() {
     if (artistId) {
       const fetchArtist = async () => {
         try {
-          const artistData = await getCurrentArtist(artistId as string)
+          const artistData = await getPublicArtist(artistId as string)
           setArtist(artistData.artist)
         } catch (error) {
           console.error('Error fetching artist:', error)
