@@ -4,3 +4,9 @@ export interface User {
     password: string;
     maximumArtists: number;
 }
+
+export interface RegisterUserInput {
+    name: string;
+    email: string;
+    password: string;
+}

@@ -1,6 +1,6 @@
-import { User } from "@/types/user.type";
+import { RegisterUserInput } from "@/types/user.type";
 
-const registerUser = async (user: User) => {
+const registerUser = async (user: RegisterUserInput) => {
     try {
         const response = await fetch("/api/auth/register", {
             method: "POST",
