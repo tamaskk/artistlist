@@ -1,8 +1,5 @@
 {
     "crons": [
-      {
-        "path": "/api/cron/check-expired-ads",
-        "schedule": "0 0 * * *"
-      }
+
     ]
   }
