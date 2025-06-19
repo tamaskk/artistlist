@@ -172,7 +172,7 @@ export default function Login() {
                 <div className="relative hidden w-0 flex-1 lg:block">
                     <Image
                         alt=""
-                        src="https://images.unsplash.com/photo-1496917756835-20cb06e75b4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1908&q=80"
+                        src="https://images.unsplash.com/photo-1509824227185-9c5a01ceba0d?q=80&w=1015&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
                         width={1908}
                         height={1272}
                         className="absolute inset-0 size-full object-cover"
