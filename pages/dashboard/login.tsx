@@ -4,6 +4,7 @@ import { useFormik } from "formik";
 import * as yup from "yup";
 import { toast, Toaster } from "sonner";
 import Link from "next/link";
+import Image from "next/image";
 import { useEffect } from "react";
 import { useArtists } from "@/context/mainContext";
 
@@ -60,9 +61,10 @@ export default function Login() {
                     toast.success("Sikeres bejelentkezés!");
                     router.push(result.url);
                 }
-            } catch (error: any) {
+            } catch (error: unknown) {
+                const errorMessage = error instanceof Error ? error.message : "A bejelentkezés sikertelen volt";
                 toast.error("Hiba történt!", {
-                    description: error.message || "A bejelentkezés sikertelen volt",
+                    description: errorMessage,
                 });
             } finally {
                 setSubmitting(false);
@@ -88,9 +90,11 @@ export default function Login() {
                 <div className="flex flex-1 flex-col justify-center px-4 py-12 sm:px-6 lg:flex-none lg:px-20 xl:px-24">
                     <div className="mx-auto w-full max-w-sm lg:w-96">
                         <div>
-                            <img
+                            <Image
                                 alt="Your Company"
                                 src="https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=600"
+                                width={40}
+                                height={40}
                                 className="h-10 w-auto"
                             />
                             <h2 className="mt-8 text-2xl/9 font-bold tracking-tight text-gray-900">
@@ -166,9 +170,11 @@ export default function Login() {
                     </div>
                 </div>
                 <div className="relative hidden w-0 flex-1 lg:block">
-                    <img
+                    <Image
                         alt=""
                         src="https://images.unsplash.com/photo-1496917756835-20cb06e75b4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1908&q=80"
+                        width={1908}
+                        height={1272}
                         className="absolute inset-0 size-full object-cover"
                     />
                 </div>

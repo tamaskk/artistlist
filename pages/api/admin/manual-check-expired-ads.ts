@@ -2,6 +2,16 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { connectMongo } from "@/db/mongodb";
 import { ObjectId } from "mongodb";
 
+interface ProcessResult {
+    adId?: string | ObjectId;
+    artistId?: string | ObjectId;
+    title?: string;
+    status?: string;
+    error?: string;
+    name?: string;
+    action?: string;
+}
+
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     if (req.method === "POST") {
         try {
@@ -24,7 +34,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
                 processed: 0,
                 updated: 0,
                 errors: 0,
-                details: [] as any[]
+                details: [] as ProcessResult[]
             };
             
             // Process each expired ad

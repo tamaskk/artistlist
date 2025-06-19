@@ -3,7 +3,7 @@ import { connectMongo } from "@/db/mongodb";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "../auth/[...nextauth]";
 import { ObjectId } from "mongodb";
-import { Artist, ArtistEvent } from "@/types/artist.type";
+import { ArtistEvent } from "@/types/artist.type";
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     const session = await getServerSession(req, res, authOptions);

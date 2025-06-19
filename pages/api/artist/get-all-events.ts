@@ -1,6 +1,7 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { connectMongo } from "@/db/mongodb";
 import { Artist, ArtistEvent } from "@/types/artist.type";
+import { Document, WithId } from "mongodb";
 
 interface EventWithArtist extends ArtistEvent {
   artistId: string;
@@ -26,8 +27,8 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
       const allEvents: EventWithArtist[] = [];
 
       // Extract events from all artists and add artist information
-      artists.forEach((artistDoc: any) => {
-        const artist = artistDoc as Artist;
+      artists.forEach((artistDoc: WithId<Document>) => {
+        const artist = artistDoc as unknown as Artist;
         if (artist.events && artist.events.length > 0) {
           const validEvents = artist.events.filter((event: ArtistEvent) => 
             new Date(event.date) >= currentDate
