@@ -65,15 +65,15 @@ Add to your server's crontab:
 # Edit crontab
 crontab -e
 
-# Add this line to run every 6 hours
-0 */6 * * * curl -X POST https://yourdomain.com/api/cron/check-expired-ads -H "x-cron-secret: your-secure-random-string-here"
+# Add this line to run once per day at midnight
+0 0 * * * curl -X POST https://yourdomain.com/api/cron/check-expired-ads -H "x-cron-secret: your-secure-random-string-here"
 ```
 
 ### Option 3: Windows Task Scheduler
 
 1. Open Task Scheduler
 2. Create Basic Task
-3. Set trigger to run every 6 hours
+3. Set trigger to run once per day at midnight
 4. Set action to run a program: `curl`
 5. Add arguments: `-X POST https://yourdomain.com/api/cron/check-expired-ads -H "x-cron-secret: your-secure-random-string-here"`
 
@@ -170,13 +170,14 @@ The cron job logs important information:
 
 ## Frequency Recommendations
 
-- **Development**: Every hour or manual testing
-- **Production**: Every 6 hours (4 times per day)
-- **High-traffic sites**: Every 2-4 hours
+- **Development**: Manual testing or once per day
+- **Production (Vercel Hobby)**: Once per day at midnight
+- **Production (Vercel Pro)**: Every 6 hours (4 times per day)
+- **High-traffic sites**: Every 2-4 hours (requires Pro plan or external cron service)
 
 ## Performance Considerations
 
 - The cron job processes ads sequentially to avoid overwhelming the database
 - Consider batch processing for large numbers of ads
 - Monitor execution time and optimize if needed
-- Add database indexes on `status` and `adEndDate` fields for better performance 
+- Add database indexes on `status` and `adEndDate` fields for better performance
