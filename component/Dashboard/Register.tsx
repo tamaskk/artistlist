@@ -78,14 +78,6 @@ export default function Register() {
 
     return (
         <>
-            {/*
-              This example requires updating your template:
-    
-              ```
-              <html class="h-full bg-white">
-              <body class="h-full">
-              ```
-            */}
             <div className="flex flex-row-reverse min-h-screen flex-1">
               <div className="flex flex-1 flex-col justify-center px-4 py-12 sm:px-6 lg:flex-none lg:px-20 xl:px-24">
                 <div className="mx-auto w-full max-w-sm lg:w-96">
@@ -95,9 +87,9 @@ export default function Register() {
                       src="https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=600"
                       className="h-10 w-auto"
                     />
-                    <h2 className="mt-8 text-2xl/9 font-bold tracking-tight text-gray-900">Sign in to your account</h2>
+                    <h2 className="mt-8 text-2xl/9 font-bold tracking-tight text-gray-900">Create your account</h2>
                     <p className="mt-2 text-sm/6 text-gray-500">
-                      Are you already a member?{' '}
+                      Already have an account?{' '}
                       <Link href="/dashboard/login" className="font-semibold text-indigo-600 hover:text-indigo-500">
                         Sign in
                       </Link>
