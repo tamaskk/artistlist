@@ -8,6 +8,7 @@ import React, {
 import { Artist } from "@/types/artist.type";
 import { getArtists, getCurrentArtist } from "@/service/artist.service";
 import { useRouter } from "next/router";
+import { useSession } from "next-auth/react";
 
 // Define the shape of our context
 interface ArtistContextType {
@@ -42,18 +43,25 @@ export const ArtistProvider: React.FC<ArtistProviderProps> = ({ children }) => {
   const [selectedArtist, setSelectedArtist] = useState<string | null>(null);
   
   const router = useRouter();
+  const { data: session, status } = useSession();
   const currentId = router.query.id;
   
   useEffect(() => {
-    if (router.query.id) {
+    if (router.query.id && session) {
       getArtist(router.query.id as string);
     }
-  }, [router.query.id]);
+  }, [router.query.id, session]);
 
-  // Fetch artists on initial load
+  // Fetch artists only when user is authenticated
   useEffect(() => {
-    fetchArtists();
-  }, []);
+    if (status === "authenticated" && session) {
+      fetchArtists();
+    } else if (status === "unauthenticated") {
+      // Clear artists when user is not authenticated
+      setArtists(null);
+      setCurrentArtist(null);
+    }
+  }, [status, session]);
 
   const getArtist = async (id: string) => {
     const response = await getCurrentArtist(id);
@@ -61,6 +69,11 @@ export const ArtistProvider: React.FC<ArtistProviderProps> = ({ children }) => {
   };
 
   const fetchArtists = async () => {
+    // Only fetch if user is authenticated
+    if (status !== "authenticated" || !session) {
+      return;
+    }
+
     setIsLoading(true);
     try {
       const response = await getArtists();
