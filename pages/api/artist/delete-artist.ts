@@ -16,28 +16,30 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
     if (req.method === "DELETE") {
         const { id } = req.query;
+        let client;
 
         try {
+            client = await connectMongo();
+            const db = client.db("artistlist-db");
+            const collection = db.collection("artists");
 
-        const client = await connectMongo();
-        const db = client.db("artistlist-db");
-        const collection = db.collection("artists");
+            const artist = await collection.deleteOne({
+                _id: new ObjectId(id as string)
+            });
 
-        const artist = await collection.deleteOne({
-            _id: new ObjectId(id as string)
-        });
-
-        res.status(200).json({
-            ok: true,
-            message: "Sikeres törlés",
-            artist: artist
-        });
-    } catch (error) {
-        console.error(error);
-        return res.status(500).json({ message: "Internal server error", ok: false });
-    } finally {
-        await client.close();
-    }
+            res.status(200).json({
+                ok: true,
+                message: "Sikeres törlés",
+                artist: artist
+            });
+        } catch (error) {
+            console.error(error);
+            return res.status(500).json({ message: "Internal server error", ok: false });
+        } finally {
+            if (client) {
+                await client.close();
+            }
+        }
     } else {
         res.status(405).json({
             ok: false,
