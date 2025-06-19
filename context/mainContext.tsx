@@ -9,6 +9,7 @@ import { Artist } from "@/types/artist.type";
 import { getArtists, getCurrentArtist } from "@/service/artist.service";
 import { useRouter } from "next/router";
 import { useSession } from "next-auth/react";
+import { isValidObjectId } from "mongoose";
 
 // Define the shape of our context
 interface ArtistContextType {
@@ -64,8 +65,14 @@ export const ArtistProvider: React.FC<ArtistProviderProps> = ({ children }) => {
   }, [status, session]);
 
   const getArtist = async (id: string) => {
-    const response = await getCurrentArtist(id);
-    setCurrentArtist(response.artist);
+    // Check if the id is a valid object id
+    if (isValidObjectId(id)) {
+      const response = await getCurrentArtist(id);
+      setCurrentArtist(response.artist);
+    } else {
+      // If the id is not a valid object id, redirect to the dashboard
+      router.push("/dashboard");
+    }
   };
 
   const fetchArtists = async () => {

@@ -251,7 +251,7 @@ export default function SortArtists() {
                         placeholder="Search genres..."
                         value={genreSearchTerm}
                         onChange={(e) => setGenreSearchTerm(e.target.value)}
-                        className="w-full p-2 border text-black border-gray-300 rounded-md text-sm mb-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        className="w-full p-2 border text-black placeholder:text-gray-600 border-gray-300 rounded-md text-sm mb-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                       />
                       <div className="space-y-1 max-h-48 overflow-y-auto">
                         {filteredGenres.map((genre) => (

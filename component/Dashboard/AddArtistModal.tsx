@@ -265,7 +265,7 @@ export default function AddArtistModal({ isOpen, onClose, onAddArtist }: AddArti
                                 <input
                                   type="text"
                                   placeholder="Search genres..."
-                                  className="w-full p-2 border border-gray-300 rounded-md text-sm mb-2"
+                                  className="w-full p-2 border placeholder:text-gray-600 border-gray-300 rounded-md text-sm mb-2"
                                   onChange={(e) => {
                                     setGenreSearchTerm(e.target.value);
                                   }}
