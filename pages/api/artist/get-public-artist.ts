@@ -31,7 +31,6 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
             const artist = await collection.findOne({
                 _id: objectId,
-                isPublic: true // Only return public artists
             });
 
             if (!artist) {
