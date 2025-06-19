@@ -42,13 +42,13 @@ If deploying on Vercel, add this to your `vercel.json`:
   "crons": [
     {
       "path": "/api/cron/check-expired-ads",
-      "schedule": "0 */6 * * *"
+      "schedule": "0 0 * * *"
     }
   ]
 }
 ```
 
-This runs every 6 hours. You can adjust the schedule as needed.
+This runs once per day at midnight. **Note**: Vercel hobby plans are limited to one cron job per day.
 
 #### Other Cron Services
 You can use services like:
