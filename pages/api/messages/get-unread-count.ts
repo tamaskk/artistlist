@@ -5,9 +5,8 @@ import { authOptions } from "../auth/[...nextauth]";
 import { ObjectId } from "mongodb";
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
-    console.log('🎯 API endpoint called: /api/artist/new-artist');
+    console.log('🎯 API endpoint called: /api/messages/get-unread-count');
     console.log('📝 Request method:', req.method);
-    console.log('📦 Request body:', req.body);
     
     // Check authentication
     const session = await getServerSession(req, res, authOptions);
@@ -21,31 +20,38 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
         });
     }
 
-    if (req.method === "POST") {
-        const { name, concept, location, bio } = req.body;
-        console.log('📋 Artist data:', { name, concept, location, bio });
-
+    if (req.method === "GET") {
         try {
             const client = await connectMongo();
             const db = client.db("artistlist-db");
-            const collection = db.collection("artists");
-
-            const artist = await collection.insertOne({ 
-                name, 
-                concept, 
-                location, 
-                bio, 
-                user: new ObjectId(session.user.id),
-                createdAt: new Date(),
-                isPublic: false // Default to private
+            
+            // First get all artists belonging to the user
+            const artistsCollection = db.collection("artists");
+            const userArtists = await artistsCollection.findOne({ 
+                user: new ObjectId(session.user.id) 
+            });
+            
+            if (!userArtists) {
+                return res.status(200).json({
+                    ok: true,
+                    message: "No artists found",
+                    unreadCount: 0
+                });
+            }
+            
+            // Get unread messages for all user's artists
+            const messagesCollection = db.collection("messages");
+            const unreadMessages = await messagesCollection.countDocuments({
+                artistId: userArtists._id,
+                isRead: false
             });
 
-            console.log('✅ Artist created successfully:', artist.insertedId);
+            console.log('✅ Unread messages count:', unreadMessages);
 
             res.status(200).json({
                 ok: true,
-                message: "Sikeres regisztráció",
-                artistId: artist.insertedId,
+                message: "Unread count retrieved successfully",
+                unreadCount: unreadMessages
             });
         } catch (error) {
             console.error('❌ Database error:', error);
@@ -60,4 +66,4 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     }
 }
 
-export default handler;
+export default handler; 

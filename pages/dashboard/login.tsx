@@ -5,7 +5,7 @@ import * as yup from "yup";
 import { toast, Toaster } from "sonner";
 import Link from "next/link";
 import Image from "next/image";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useArtists } from "@/context/mainContext";
 
 const loginSchema = yup.object().shape({
@@ -23,20 +23,28 @@ export default function Login() {
     const { data: session, status } = useSession();
     const { callbackUrl } = router.query;
     const { artists, setSelectedArtist } = useArtists();
+    const [isRedirecting, setIsRedirecting] = useState(false);
 
     useEffect(() => {
-        if (status === "authenticated" && session) {
-            if (callbackUrl && typeof callbackUrl === 'string') {
-                router.push(callbackUrl);
-            } else if (artists && artists.length > 0) {
-                const firstArtist = artists[0];
-                setSelectedArtist(firstArtist._id);
-                router.push(`/dashboard/${firstArtist._id}/profile`);
-            } else {
-                router.push("/dashboard");
-            }
+        // Only redirect if we're authenticated and not already redirecting
+        if (status === "authenticated" && session && !isRedirecting) {
+            setIsRedirecting(true);
+            console.log('🔐 User authenticated, redirecting...');
+            
+            // Add a small delay to ensure session is fully established
+            setTimeout(() => {
+                if (callbackUrl && typeof callbackUrl === 'string') {
+                    router.push(callbackUrl);
+                } else if (artists && artists.length > 0) {
+                    const firstArtist = artists[0];
+                    setSelectedArtist(firstArtist._id);
+                    router.push(`/dashboard/${firstArtist._id}/profile`);
+                } else {
+                    router.push("/dashboard");
+                }
+            }, 500);
         }
-    }, [status, session, router, callbackUrl, artists, setSelectedArtist]);
+    }, [status, session, router, callbackUrl, artists, setSelectedArtist, isRedirecting]);
 
     const formik = useFormik({
         initialValues: {
@@ -46,6 +54,7 @@ export default function Login() {
         validationSchema: loginSchema,
         onSubmit: async (values, { setSubmitting }) => {
             try {
+                console.log('🔐 Attempting login...');
                 const result = await signIn("credentials", {
                     redirect: false,
                     email: values.email,
@@ -53,13 +62,16 @@ export default function Login() {
                     callbackUrl: (callbackUrl as string) || "/dashboard",
                 });
 
+                console.log('🔐 Login result:', result);
+
                 if (result?.error) {
                     toast.error("Hiba történt!", {
                         description: result.error,
                     });
-                } else if (result?.url) {
+                } else if (result?.ok) {
                     toast.success("Sikeres bejelentkezés!");
-                    router.push(result.url);
+                    // Don't redirect here, let the useEffect handle it
+                    console.log('✅ Login successful, waiting for session...');
                 }
             } catch (error: unknown) {
                 const errorMessage = error instanceof Error ? error.message : "A bejelentkezés sikertelen volt";

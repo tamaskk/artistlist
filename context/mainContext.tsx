@@ -6,10 +6,15 @@ import React, {
   useEffect,
 } from "react";
 import { Artist } from "@/types/artist.type";
-import { getArtists, getCurrentArtist } from "@/service/artist.service";
+import { getArtists, getCurrentArtist, getActiveAdsCount } from "@/service/artist.service";
+import { getUnreadCount } from "@/service/message.service";
 import { useRouter } from "next/router";
 import { useSession } from "next-auth/react";
-import { isValidObjectId } from "mongoose";
+
+// Simple client-side validation for MongoDB ObjectId
+const isValidObjectId = (id: string): boolean => {
+  return /^[0-9a-fA-F]{24}$/.test(id);
+};
 
 // Define the shape of our context
 interface ArtistContextType {
@@ -26,6 +31,13 @@ interface ArtistContextType {
   setSelectedArtist: (artist: string | null) => void;
   switchArtist: (id: string) => void;
   currentId: string | null;
+  // Counter functionality
+  counters: {
+    messages: number;
+    ads: number;
+  };
+  fetchCounters: () => Promise<void>;
+  refreshCounters: () => Promise<void>;
 }
 
 // Create the context with a default value
@@ -42,6 +54,13 @@ export const ArtistProvider: React.FC<ArtistProviderProps> = ({ children }) => {
   const [currentArtist, setCurrentArtist] = useState<Artist | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedArtist, setSelectedArtist] = useState<string | null>(null);
+  const [counters, setCounters] = useState<{
+    messages: number;
+    ads: number;
+  }>({ 
+    messages: 0,
+    ads: 0,
+  });
   
   const router = useRouter();
   const { data: session, status } = useSession();
@@ -61,14 +80,33 @@ export const ArtistProvider: React.FC<ArtistProviderProps> = ({ children }) => {
       // Clear artists when user is not authenticated
       setArtists(null);
       setCurrentArtist(null);
+      setCounters({ messages: 0, ads: 0 });
     }
   }, [status, session]);
+
+  // Fetch counters when artists are loaded
+  useEffect(() => {
+    if (artists && artists.length > 0) {
+      fetchCounters();
+      
+      // Set up interval to refresh counters every 30 seconds
+      const interval = setInterval(fetchCounters, 30000);
+      
+      return () => clearInterval(interval);
+    }
+  }, [artists]);
 
   const getArtist = async (id: string) => {
     // Check if the id is a valid object id
     if (isValidObjectId(id)) {
-      const response = await getCurrentArtist(id);
-      setCurrentArtist(response.artist);
+      try {
+        const response = await getCurrentArtist(id);
+        setCurrentArtist(response.artist);
+      } catch (error) {
+        console.error("Error fetching artist:", error);
+        // If there's an error fetching the artist, redirect to dashboard
+        router.push("/dashboard");
+      }
     } else {
       // If the id is not a valid object id, redirect to the dashboard
       router.push("/dashboard");
@@ -146,6 +184,34 @@ export const ArtistProvider: React.FC<ArtistProviderProps> = ({ children }) => {
     }
   };
 
+  const fetchCounters = async () => {
+    try {
+      // Fetch unread messages count
+      const unreadResponse = await getUnreadCount();
+      if (unreadResponse.ok) {
+        setCounters(prev => ({
+          ...prev,
+          messages: unreadResponse.unreadCount
+        }));
+      }
+
+      // Fetch active ads count
+      const adsResponse = await getActiveAdsCount();
+      if (adsResponse.ok) {
+        setCounters(prev => ({
+          ...prev,
+          ads: adsResponse.activeAdsCount
+        }));
+      }
+    } catch (error) {
+      console.error('Error fetching counters:', error);
+    }
+  };
+
+  const refreshCounters = async () => {
+    await fetchCounters();
+  };
+
   const value = {
     artists,
     setArtists,
@@ -160,6 +226,9 @@ export const ArtistProvider: React.FC<ArtistProviderProps> = ({ children }) => {
     setSelectedArtist,
     switchArtist,
     currentId: currentId as string | null,
+    counters,
+    fetchCounters,
+    refreshCounters,
   };
 
   return (

@@ -53,14 +53,25 @@ export default function AddArtistModal({ isOpen, onClose, onAddArtist }: AddArti
     validationSchema: artistSchema,
     onSubmit: async (values, { setSubmitting, resetForm }) => {
       try {
+        // Validate that at least one genre is selected
+        if (selectedGenres.length === 0) {
+          toast.error('At least one music genre is required');
+          return;
+        }
+
         const artist: Partial<Artist> = {
           name: values.name,
           concept: selectedGenres.join(', '),
           location: values.location,
           bio: values.bio,
+          isPublic: false, // Default to private
         }
 
+        console.log('Submitting artist data:', artist); // Debug log
+
         const result = await registerArtist(artist)
+
+        console.log('API response:', result); // Debug log
 
         if (result.ok) {
           toast.success('Artist added successfully')
@@ -85,6 +96,7 @@ export default function AddArtistModal({ isOpen, onClose, onAddArtist }: AddArti
           toast.error(result.message)
         }
       } catch (error: any) {
+        console.error('Error in form submission:', error); // Debug log
         toast.error('Error adding artist', {
           description: error.message || 'Failed to add artist. Please try again.',
         })
@@ -127,6 +139,11 @@ export default function AddArtistModal({ isOpen, onClose, onAddArtist }: AddArti
     // For multi-word searches, check if ALL words are present in the genre
     return searchWords.every(word => genreLower.includes(word));
   });
+
+  // Sync selectedGenres with formik
+  useEffect(() => {
+    formik.setFieldValue('concept', selectedGenres);
+  }, [selectedGenres]);
 
   // Handle clicking outside dropdown to close it
   useEffect(() => {
@@ -298,7 +315,7 @@ export default function AddArtistModal({ isOpen, onClose, onAddArtist }: AddArti
                           )}
                         </div>
                         
-                        {selectedGenres.length === 0 && formik.touched.concept && formik.errors.concept && (
+                        {selectedGenres.length === 0 && formik.touched.name && (
                           <div className="text-red-600 text-sm mt-1">At least one music genre is required</div>
                         )}
                         {selectedGenres.length > 10 && (

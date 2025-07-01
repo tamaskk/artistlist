@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { addAd, getAd } from '@/service/artist.service';
 import { useRouter } from 'next/router';
 import { Ad } from '@/types/ads.type';
+import { useArtists } from '@/context/mainContext';
 
 const DAILY_FEE = 5; // 5 euros per day
 
@@ -18,6 +19,7 @@ const Ads = () => {
   const router = useRouter();
   const { id: artistId } = router.query;
   const hasFetchedAds = useRef(false);
+  const { refreshCounters } = useArtists();
 
   // Check if there's an active campaign
   const hasActiveCampaign = Array.isArray(ads) && ads.some((ad: any) => ad?.status === 'running');
@@ -83,6 +85,9 @@ const Ads = () => {
         endDate: new Date(new Date().setDate(new Date().getDate() + 7)),
         budget: 0,
       });
+      
+      // Refresh counters to update active ads count in sidebar
+      await refreshCounters();
     }
   };
 

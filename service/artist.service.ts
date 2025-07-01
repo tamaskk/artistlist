@@ -1,21 +1,32 @@
 import { Artist } from "@/types/artist.type";
 
 const registerArtist = async (artist: Partial<Artist>) => {
-    const response = await fetch("/api/artist/new-artist", {
-        method: "POST",
-        body: JSON.stringify(artist),
-        headers: {
-            "Content-Type": "application/json",
-        },
-    });
+    console.log('Making API call to register artist:', artist);
+    
+    try {
+        const response = await fetch("/api/artist/new-artist", {
+            method: "POST",
+            body: JSON.stringify(artist),
+            headers: {
+                "Content-Type": "application/json",
+            },
+        });
 
-    const data = await response.json();
+        console.log('API response status:', response.status);
+        console.log('API response headers:', response.headers);
 
-    if (!response.ok) {
-        throw new Error(data.message || "Sikertelen regisztráció");
+        const data = await response.json();
+        console.log('API response data:', data);
+
+        if (!response.ok) {
+            throw new Error(data.message || "Sikertelen regisztráció");
+        }
+
+        return data;
+    } catch (error) {
+        console.error('Error in registerArtist service:', error);
+        throw error;
     }
-
-    return data;
 };
 
 const getArtists = async (): Promise<{
@@ -174,4 +185,49 @@ const getAllEvents = async () => {
     }
 }
 
-export { getArtists, registerArtist, updateArtist, getCurrentArtist, getPublicArtist, deleteArtist, getAllArtists, profileClick, addAd, getAd, getActiveAdsArtists, checkExpiredAds, getAllEvents };
+const toggleArtistPublic = async (artistId: string, isPublic: boolean) => {
+    try {
+        const response = await fetch("/api/artist/toggle-public", {
+            method: "POST",
+            body: JSON.stringify({ artistId, isPublic }),
+            headers: {
+                "Content-Type": "application/json",
+            },
+        });
+        
+        const data = await response.json();
+        
+        if (!response.ok) {
+            throw new Error(data.message || "Failed to toggle public status");
+        }
+
+        return data;
+    } catch (error) {
+        console.error("Error toggling artist public status:", error);
+        throw error;
+    }
+}
+
+const getPublicArtists = async () => {
+    try {
+        const response = await fetch("/api/artist/get-public-artists");
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error("Error fetching public artists:", error);
+        throw error;
+    }
+}
+
+const getActiveAdsCount = async () => {
+    try {
+        const response = await fetch("/api/artist/get-active-ads-count");
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error("Error fetching active ads count:", error);
+        throw error;
+    }
+}
+
+export { getArtists, registerArtist, updateArtist, getCurrentArtist, getPublicArtist, deleteArtist, getAllArtists, profileClick, addAd, getAd, getActiveAdsArtists, checkExpiredAds, getAllEvents, toggleArtistPublic, getPublicArtists, getActiveAdsCount };

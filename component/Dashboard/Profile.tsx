@@ -7,7 +7,7 @@ import {
   Artist,
   ArtistSet
 } from "@/types/artist.type";
-import { updateArtist, deleteArtist } from "@/service/artist.service";
+import { updateArtist, deleteArtist, toggleArtistPublic } from "@/service/artist.service";
 import { toast } from "sonner";
 import { useArtists } from "@/context/mainContext";
 import { uploadImage, generateImagePath, deleteImage } from "@/utils/imageUpload";
@@ -380,6 +380,41 @@ const Profile = () => {
     }
   };
 
+  const handleTogglePublic = async () => {
+    if (!currentArtist?._id) {
+      toast.error("No artist selected");
+      return;
+    }
+
+    try {
+      const newPublicStatus = !isPublic;
+      const response = await toggleArtistPublic(currentArtist._id, newPublicStatus);
+      
+      if (response.ok) {
+        setIsPublic(newPublicStatus);
+        toast.success(response.message);
+        
+        // Update the current artist
+        if (currentArtist) {
+          setCurrentArtist({ ...currentArtist, isPublic: newPublicStatus });
+        }
+        
+        // Update the artist in the artists array
+        const updatedArtists = artists && artists.map((existingArtist: Artist) => 
+          existingArtist._id === currentArtist._id 
+            ? { ...existingArtist, isPublic: newPublicStatus }
+            : existingArtist
+        );
+        setArtists(updatedArtists);
+      } else {
+        toast.error(response.message || "Failed to toggle public status");
+      }
+    } catch (error) {
+      toast.error("Failed to toggle public status");
+      console.error(error);
+    }
+  };
+
   const handleDelete = async () => {
     if (!currentArtist?._id || !currentArtist?.name) {
       toast.error("No artist selected");
@@ -456,10 +491,37 @@ const Profile = () => {
         <div className="space-y-12">
           {/* Artist Information Section */}
           <div className="border-b border-gray-900/10 pb-12">
-            <h2 className="text-base/7 font-semibold text-gray-900">Artist Profile</h2>
-            <p className="mt-1 text-sm/6 text-gray-600">
-              This information will be displayed publicly so be careful what you share.
-            </p>
+            <div className="flex justify-between items-start mb-6">
+              <div>
+                <h2 className="text-base/7 font-semibold text-gray-900">Artist Profile</h2>
+                <p className="mt-1 text-sm/6 text-gray-600">
+                  This information will be displayed publicly so be careful what you share.
+                </p>
+              </div>
+              
+              {/* Public/Private Toggle */}
+              <div className="flex items-center space-x-3">
+                <span className="text-sm font-medium text-gray-700">
+                  {isPublic ? 'Public' : 'Private'}
+                </span>
+                <button
+                  type="button"
+                  onClick={handleTogglePublic}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 ${
+                    isPublic ? 'bg-indigo-600' : 'bg-gray-200'
+                  }`}
+                >
+                  <span
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                      isPublic ? 'translate-x-6' : 'translate-x-1'
+                    }`}
+                  />
+                </button>
+                <span className="text-xs text-gray-500">
+                  {isPublic ? 'Visible on main page' : 'Hidden from main page'}
+                </span>
+              </div>
+            </div>
 
             <div className="mt-10 grid grid-cols-1 md:grid-cols-2 gap-8">
               {/* Artist Name */}

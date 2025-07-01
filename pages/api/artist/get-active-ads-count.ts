@@ -5,9 +5,8 @@ import { authOptions } from "../auth/[...nextauth]";
 import { ObjectId } from "mongodb";
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
-    console.log('🎯 API endpoint called: /api/artist/new-artist');
+    console.log('🎯 API endpoint called: /api/artist/get-active-ads-count');
     console.log('📝 Request method:', req.method);
-    console.log('📦 Request body:', req.body);
     
     // Check authentication
     const session = await getServerSession(req, res, authOptions);
@@ -21,31 +20,25 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
         });
     }
 
-    if (req.method === "POST") {
-        const { name, concept, location, bio } = req.body;
-        console.log('📋 Artist data:', { name, concept, location, bio });
-
+    if (req.method === "GET") {
         try {
             const client = await connectMongo();
             const db = client.db("artistlist-db");
-            const collection = db.collection("artists");
-
-            const artist = await collection.insertOne({ 
-                name, 
-                concept, 
-                location, 
-                bio, 
+            
+            // Get active ads for all user's artists
+            const artistsCollection = db.collection("artists");
+            const activeAdsCount = await artistsCollection.countDocuments({
                 user: new ObjectId(session.user.id),
-                createdAt: new Date(),
-                isPublic: false // Default to private
+                isAdActive: true,
+                adsUntil: { $gt: new Date() } // Ads that haven't expired yet
             });
 
-            console.log('✅ Artist created successfully:', artist.insertedId);
+            console.log('✅ Active ads count:', activeAdsCount);
 
             res.status(200).json({
                 ok: true,
-                message: "Sikeres regisztráció",
-                artistId: artist.insertedId,
+                message: "Active ads count retrieved successfully",
+                activeAdsCount: activeAdsCount
             });
         } catch (error) {
             console.error('❌ Database error:', error);
@@ -60,4 +53,4 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     }
 }
 
-export default handler;
+export default handler; 

@@ -57,4 +57,20 @@ const readMessage = async (messageId: string) => {
   }
 };
 
-export { sendMessage, getMessages, readMessage };
+const getUnreadCount = async () => {
+  try {
+    const response = await fetch("/api/messages/get-unread-count");
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message || "Sikertelen unread count lekérése");
+    }
+
+    return data;
+  } catch (error) {
+    console.error("Error getting unread count:", error);
+    throw error;
+  }
+};
+
+export { sendMessage, getMessages, readMessage, getUnreadCount };

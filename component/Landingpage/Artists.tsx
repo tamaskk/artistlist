@@ -1,6 +1,6 @@
 import { Artist } from '@/types/artist.type';
 import { useEffect, useState } from 'react'
-import { getAllArtists, profileClick } from '@/service/artist.service';
+import { getPublicArtists, profileClick } from '@/service/artist.service';
 import Link from 'next/link';
 
 export default function Artists() {
@@ -8,7 +8,7 @@ export default function Artists() {
 
   useEffect(() => {
     const fetchArtists = async () => {
-      const artists = await getAllArtists();
+      const artists = await getPublicArtists();
       setArtists(artists.artists);
     }
     fetchArtists();

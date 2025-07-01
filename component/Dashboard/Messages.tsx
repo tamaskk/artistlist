@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { getMessages, readMessage } from "@/service/message.service";
 import { useRouter } from "next/router";
 import { Message } from "@/types/message.type";
+import { useArtists } from "@/context/mainContext";
 
 interface MessageItem {
   id: string;
@@ -62,6 +63,8 @@ const Messages = () => {
     fetchMessages();
   }, [id]);
 
+  const { refreshCounters } = useArtists();
+
   const handleReadMessage = async (messageId: string) => {
     try {
       await readMessage(messageId);
@@ -72,6 +75,9 @@ const Messages = () => {
           : message
       );
       setEmailMessages(newMessages);
+      
+      // Refresh counters to update unread count in sidebar
+      await refreshCounters();
     } catch (error) {
       console.error('Error reading message:', error);
     }

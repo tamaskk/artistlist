@@ -5,7 +5,7 @@ import { authOptions } from "../auth/[...nextauth]";
 import { ObjectId } from "mongodb";
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
-    console.log('🎯 API endpoint called: /api/artist/new-artist');
+    console.log('🎯 API endpoint called: /api/artist/toggle-public');
     console.log('📝 Request method:', req.method);
     console.log('📦 Request body:', req.body);
     
@@ -22,30 +22,53 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     }
 
     if (req.method === "POST") {
-        const { name, concept, location, bio } = req.body;
-        console.log('📋 Artist data:', { name, concept, location, bio });
+        const { artistId, isPublic } = req.body;
+        console.log('📋 Toggle data:', { artistId, isPublic });
+
+        if (!artistId) {
+            return res.status(400).json({ 
+                ok: false, 
+                message: "Artist ID is required" 
+            });
+        }
 
         try {
             const client = await connectMongo();
             const db = client.db("artistlist-db");
             const collection = db.collection("artists");
 
-            const artist = await collection.insertOne({ 
-                name, 
-                concept, 
-                location, 
-                bio, 
-                user: new ObjectId(session.user.id),
-                createdAt: new Date(),
-                isPublic: false // Default to private
+            // Check if the artist belongs to the current user
+            const artist = await collection.findOne({ 
+                _id: new ObjectId(artistId),
+                user: new ObjectId(session.user.id)
             });
 
-            console.log('✅ Artist created successfully:', artist.insertedId);
+            if (!artist) {
+                return res.status(404).json({ 
+                    ok: false, 
+                    message: "Artist not found or you don't have permission to modify it" 
+                });
+            }
+
+            // Update the artist's public status
+            const result = await collection.updateOne(
+                { _id: new ObjectId(artistId) },
+                { $set: { isPublic: isPublic } }
+            );
+
+            if (result.modifiedCount === 0) {
+                return res.status(500).json({ 
+                    ok: false, 
+                    message: "Failed to update artist status" 
+                });
+            }
+
+            console.log('✅ Artist public status updated successfully');
 
             res.status(200).json({
                 ok: true,
-                message: "Sikeres regisztráció",
-                artistId: artist.insertedId,
+                message: isPublic ? "Artist is now public" : "Artist is now private",
+                isPublic: isPublic
             });
         } catch (error) {
             console.error('❌ Database error:', error);
@@ -60,4 +83,4 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     }
 }
 
-export default handler;
+export default handler; 

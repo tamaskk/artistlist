@@ -20,14 +20,7 @@ function classNames(...classes: string[]) {
 }
 
 export default function Example() {
-  const { artists, isModalOpen, setIsModalOpen, selectedArtist, setSelectedArtist, currentId, switchArtist } = useArtists();
-  const [counters, setCounters] = useState<{
-    messages: number;
-    ads: number;
-  }>({ 
-    messages: 5,
-    ads: 12,
-  });
+  const { artists, isModalOpen, setIsModalOpen, selectedArtist, setSelectedArtist, currentId, switchArtist, counters } = useArtists();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const router = useRouter();
 
@@ -158,10 +151,10 @@ export default function Example() {
                           )}
                         />
                         {item.name}
-                        {counters[item.count as keyof typeof counters] ? (
+                        {counters[item.count as keyof typeof counters] > 0 ? (
                           <span
                             aria-hidden="true"
-                            className="ml-auto w-9 min-w-max rounded-full bg-white px-2.5 py-0.5 text-center text-xs/5 font-medium whitespace-nowrap text-gray-600 ring-1 ring-gray-200 ring-inset"
+                            className="ml-auto w-9 min-w-max rounded-full bg-red-100 px-2.5 py-0.5 text-center text-xs/5 font-medium whitespace-nowrap text-red-700 ring-1 ring-red-200 ring-inset"
                           >
                             {counters[item.count as keyof typeof counters]}
                           </span>
